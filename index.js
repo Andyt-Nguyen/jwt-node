@@ -17,25 +17,24 @@ const app = express();
 // });
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
-app.use('/',express.static(__dirname + '/public'));
 
 
-
+app.use('/login',express.static(__dirname + '/public'));
 app.post('/api/login', (req, res) => {
 	// Mock user
-	const users = [
-		{userName: 'andy', password:'pass'},
-		{userName:'flipper', password:'pass'}
-	];
 	// jwt.sign(userInfo, secretkey, callback)
 	jwt.sign(req.body, 'secret_key',{expiresIn: '30s'} ,(err,token) => {
-		// console.log({token});
-		return res.status(200).json({token}).redirect('/api/login')
+		if(err) {
+			res.sendStatus(403);
+			console.log(err);
+		} else {
+			console.log('hitting sign in func');
+			res.redirect("/");
+		}
 	})
 });
 
-app.use('/api/post', express.static(__dirname + '/secpublic'),verifyToken, (req, res) => {
-	console.log(req.token);
+app.get('/',verifyToken,express.static(__dirname + '/secpublic'),(req, res) => {
 	// The req.token now has the value of the token because of the
 	// verifyToken function;
 	jwt.verify(req.token, 'secret_key', (err, authData) => {
@@ -62,12 +61,12 @@ function verifyToken(req, res, next) {
 		const bearerToken = bearerHeader.split(' ')[1];
 		// Set the token
 		req.token = bearerToken;
-		// Set the next middleware
 		console.log(req.token);
+		// Set the next middleware
 		next();
 
 	} else {
-		res.sendStatus(403)
+		res.redirect('/login')
 	}
 }
 

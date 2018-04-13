@@ -27,8 +27,8 @@
 					"Accept": "application/json, text/plain, */*"
 				},
 				body: JSON.stringify({id: 1,username:username.value, password:password.value})
-			}).then(res => {
-				window.location = '/api/post';
+			}).then( () => {
+				window.location = '/'
 			})
 		});
 	</script>
